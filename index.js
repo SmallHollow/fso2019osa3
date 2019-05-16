@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
+
+app.use(bodyParser.json())
 
 let phonebook = [
   {
@@ -53,6 +56,27 @@ app.delete('/api/persons/:id', (request, response) => {
 
   response.status(204).end();
 });
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+
+  if (!body.name) {
+     return response.status(400).json({
+       error: 'Nimi puuttuu!'
+     })
+   }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: Math.floor(Math.random() * Math.floor(50000)) + 100
+  }
+
+  phonebook = phonebook.concat(person)
+  console.log(person)
+
+  response.json(person)
+})
 
 const PORT = 3001
 app.listen(PORT, () => {
