@@ -60,17 +60,26 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  if (!body.name) {
-     return response.status(400).json({
-       error: 'Nimi puuttuu!'
-     })
-   }
+  if (!body.name || ! body.number) {
+    return response.status(400).json({
+     error: (!body.name ? 'Nimi puuttuu!' : 'Numero puuttuu!')
+    })
+  }
+
+  const duplicates = phonebook.filter(p => p.name === body.name)
+  if (duplicates.length > 0) {
+    return response.status(400).json({
+     error: 'Nimi on jo luettelossa!'
+    })
+  }
 
   const person = {
     name: body.name,
     number: body.number,
     id: Math.floor(Math.random() * Math.floor(50000)) + 100
   }
+
+
 
   phonebook = phonebook.concat(person)
   console.log(person)
