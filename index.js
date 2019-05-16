@@ -28,6 +28,11 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello Wörld!</h1>')
 })
 
+app.get('/info', (req, res) => {
+  let now = new Date()
+  res.send(`Puhelinluettelossa on ${phonebook.length} henkilön tiedot<br />${now}`)
+})
+
 app.get('/api/persons', (req, res) => {
   res.json(phonebook)
 })
