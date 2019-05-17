@@ -3,8 +3,12 @@ const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 
+morgan.token('postjson', (req, res) => {
+  return (req.method === "POST" ? JSON.stringify(req.body) : null)
+})
+
 app.use(bodyParser.json())
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postjson'))
 
 let phonebook = [
   {
@@ -81,9 +85,9 @@ app.post('/api/persons', (request, response) => {
     id: Math.floor(Math.random() * Math.floor(50000)) + 100
   }
 
-  phonebook = phonebook.concat(person)
-  console.log(person)
 
+
+  phonebook = phonebook.concat(person)
   response.json(person)
 })
 
