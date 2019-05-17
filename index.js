@@ -1,8 +1,10 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const morgan = require('morgan')
 
 app.use(bodyParser.json())
+app.use(morgan('tiny'))
 
 let phonebook = [
   {
@@ -78,8 +80,6 @@ app.post('/api/persons', (request, response) => {
     number: body.number,
     id: Math.floor(Math.random() * Math.floor(50000)) + 100
   }
-
-
 
   phonebook = phonebook.concat(person)
   console.log(person)
