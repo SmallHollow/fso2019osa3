@@ -6,6 +6,8 @@ const Person = require('./models/person')
 const morgan = require('morgan')
 const cors = require('cors')
 
+let phonebook = []
+
 morgan.token('postjson', (req, res) => {
   return (req.method === "POST" ? JSON.stringify(req.body) : null)
 })
@@ -64,14 +66,23 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  const person = {
+  const person = new Person({
     name: body.name,
-    number: body.number,
-    id: Math.floor(Math.random() * Math.floor(50000)) + 100
-  }
+    number: body.number
+    // id: Math.floor(Math.random() * Math.floor(50000)) + 100
+  })
+
+  person.save()
+    .then(savedPerson => {
+      console.log(`lisätään ${person.name} numero ${person.number} luetteloon`)
+      response.json(savedPerson.toJSON())
+      return
+    })
+    .catch(reason => {
+      console.log("Probleema!", reason)
+    })
 
   phonebook = phonebook.concat(person)
-  response.json(person)
 })
 
 const PORT = process.env.PORT || 3001
