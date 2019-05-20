@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.get('/info', (req, res) => {
   let now = new Date()
+  console.log("/INFO")
   res.send(`Puhelinluettelossa on ${phonebook.length} henkilön tiedot<br />${now}`)
 })
 
@@ -31,23 +32,38 @@ app.get('/api/persons', (req, res) => {
     .then(phonebook => {
       res.json(phonebook.map(person => person.toJSON()))
     })
+    .catch(error => {
+      console.log(error)
+      response.status(400).send({ error: 'ei onnistu' })
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = phonebook.find(person => person.id === id)
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  const id = request.params.id
+  // const person = phonebook.find(person => person.id === id)
+  Person.findById(id)
+    .then(person => {
+      if (person) {
+        response.json(person.toJSON())
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      response.status(400).send({ error: 'malformatted id' })
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  phonebook = phonebook.filter(person => person.id !== id);
-
-  response.status(204).end();
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+      // phonebook = phonebook.filter(person => person.id !== request.params.id);
+    })
+    .catch(error => {
+      console.log("Poistovirhe. ", error)
+    })
 });
 
 app.post('/api/persons', (request, response) => {
@@ -68,8 +84,8 @@ app.post('/api/persons', (request, response) => {
 
   const person = new Person({
     name: body.name,
-    number: body.number
-    // id: Math.floor(Math.random() * Math.floor(50000)) + 100
+    number: body.number,
+    id: body.id
   })
 
   person.save()
