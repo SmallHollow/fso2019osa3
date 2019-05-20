@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
-const app = express()
 const bodyParser = require('body-parser')
+const app = express()
+const Person = require('./models/person')
 const morgan = require('morgan')
 const cors = require('cors')
 
@@ -13,29 +15,6 @@ app.use(express.static('build'))
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postjson'))
 
-let phonebook = [
-  {
-      id: 1,
-      name: "Arto Hellas",
-      number: "045-1236543"
-  },
-  {
-      id: 2,
-      name: "Arto Järvinen",
-      number: "041-21423123"
-  },
-  {
-      id: 3,
-      name: "Lea Kutvonen",
-      number: "040-4323234"
-  },
-  {
-      id: 4,
-      name: "Martti Tienari",
-      number: "09-784232"
-  },
-]
-
 app.get('/', (req, res) => {
   res.send('<h1>Hello Wörld!</h1>')
 })
@@ -46,7 +25,10 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-  res.json(phonebook)
+  Person.find({})
+    .then(phonebook => {
+      res.json(phonebook.map(person => person.toJSON()))
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
