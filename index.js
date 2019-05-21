@@ -38,15 +38,12 @@ app.get('/info', (req, res) => {
   res.send(`Puhelinluettelossa on ${phonebook.length} henkilön tiedot<br />${now}`)
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then(phonebook => {
       res.json(phonebook.map(person => person.toJSON()))
     })
-    .catch(error => {
-      console.log(error)
-      response.status(400).send({ error: 'ei onnistu' })
-    })
+  .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -63,7 +60,7 @@ app.get('/api/persons/:id', (request, response, next) => {
   .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
@@ -72,7 +69,7 @@ app.delete('/api/persons/:id', (request, response) => {
   .catch(error => next(error))
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name || ! body.number) {
