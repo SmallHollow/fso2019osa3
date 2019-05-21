@@ -12,6 +12,17 @@ morgan.token('postjson', (req, res) => {
   return (req.method === "POST" ? JSON.stringify(req.body) : null)
 })
 
+const errorHandler = (error, request, response, next) => {
+  console.error("name: ", error.name)
+  console.error("message: ", error.message)
+
+  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+    return response.status(400).send({ error: 'virheellinen id' })
+  }
+
+  next(error)
+}
+
 app.use(cors())
 app.use(express.static('build'))
 app.use(bodyParser.json())
@@ -38,7 +49,7 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   // const person = phonebook.find(person => person.id === id)
   Person.findById(id)
@@ -49,10 +60,7 @@ app.get('/api/persons/:id', (request, response) => {
         response.status(404).end()
       }
     })
-    .catch(error => {
-      console.log(error)
-      response.status(400).send({ error: 'malformatted id' })
-    })
+  .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -61,9 +69,7 @@ app.delete('/api/persons/:id', (request, response) => {
       response.status(204).end()
       // phonebook = phonebook.filter(person => person.id !== request.params.id);
     })
-    .catch(error => {
-      console.log("Poistovirhe. ", error)
-    })
+  .catch(error => next(error))
 });
 
 app.post('/api/persons', (request, response) => {
@@ -94,12 +100,12 @@ app.post('/api/persons', (request, response) => {
       response.json(savedPerson.toJSON())
       return
     })
-    .catch(reason => {
-      console.log("Probleema!", reason)
-    })
+  .catch(error => next(error))
 
   phonebook = phonebook.concat(person)
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
