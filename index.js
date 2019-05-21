@@ -9,7 +9,7 @@ const cors = require('cors')
 let phonebook = []
 
 morgan.token('postjson', (req, res) => {
-  return (req.method === "POST" ? JSON.stringify(req.body) : null)
+  return (req.method === "POST" || "PUT" ? JSON.stringify(req.body) : null)
 })
 
 const errorHandler = (error, request, response, next) => {
@@ -67,6 +67,22 @@ app.delete('/api/persons/:id', (request, response, next) => {
       // phonebook = phonebook.filter(person => person.id !== request.params.id);
     })
   .catch(error => next(error))
+});
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: request.params.id
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson.toJSON())
+    })
+    .catch(error => next(error))
 });
 
 app.post('/api/persons', (request, response, next) => {
