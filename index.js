@@ -7,12 +7,12 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 morgan.token('postjson', (req, res) => {
-  return (req.method === "POST" || "PUT" ? JSON.stringify(req.body) : null)
+  return (req.method === 'POST' || 'PUT' ? JSON.stringify(req.body) : null)
 })
 
 const errorHandler = (error, request, response, next) => {
-  console.error("name: ", error.name)
-  console.error("message: ", error.message)
+  console.log('name: ', error.name)
+  console.log('message: ', error.message)
 
   if (error.name === 'CastError' && error.kind == 'ObjectId') {
     return response.status(400).send({ error: 'virheellinen id' })
@@ -37,7 +37,7 @@ app.get('/info', (req, res) => {
     .then(count => {
       res.send(`Puhelinluettelossa on ${count} henkilön tiedot<br />${now}`)
     })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons', (req, res, next) => {
@@ -45,7 +45,7 @@ app.get('/api/persons', (req, res, next) => {
     .then(phonebook => {
       res.json(phonebook.map(person => person.toJSON()))
     })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -58,7 +58,7 @@ app.get('/api/persons/:id', (request, response, next) => {
         response.status(404).end()
       }
     })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -66,8 +66,8 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .then(result => {
       response.status(204).end()
     })
-  .catch(error => next(error))
-});
+    .catch(error => next(error))
+})
 
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
@@ -83,14 +83,14 @@ app.put('/api/persons/:id', (request, response, next) => {
       response.json(updatedPerson.toJSON())
     })
     .catch(error => next(error))
-});
+})
 
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name || ! body.number) {
     return response.status(400).json({
-     error: (!body.name ? 'Nimi puuttuu!' : 'Numero puuttuu!')
+      error: (!body.name ? 'Nimi puuttuu!' : 'Numero puuttuu!')
     })
   }
 
@@ -106,7 +106,7 @@ app.post('/api/persons', (request, response, next) => {
       response.json(savedPerson.toJSON())
       return
     })
-  .catch(error => next(error))
+    .catch(error => next(error))
 
 })
 
